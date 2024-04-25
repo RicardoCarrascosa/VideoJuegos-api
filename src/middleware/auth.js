@@ -4,7 +4,12 @@ const { verifyJwt } = require('../config/jwt.js')
 
 const isAuth = async (req, res, next) => {
   try {
-    const user = getUserForAuth(req)
+    const token = req.headers.authorization
+    // If the token does not exists
+    if (!token) {
+      return res.status(400).json('Not Authorized')
+    }
+    const user = getUserForAuth(token)
     req.user = user
     next()
   } catch (error) {
@@ -14,7 +19,12 @@ const isAuth = async (req, res, next) => {
 
 const isAdmin = async (req, res, next) => {
   try {
-    const user = getUserForAuth(req)
+    const token = req.headers.authorization
+    // If the token does not exists
+    if (!token) {
+      return res.status(400).json('Not Authorized')
+    }
+    const user = await getUserForAuth(token)
     // Check for the role of the user
     if (user.rol === 'admin') {
       req.user = user
@@ -27,19 +37,13 @@ const isAdmin = async (req, res, next) => {
   }
 }
 
-const getUserForAuth = async (req) => {
+const getUserForAuth = async (token) => {
   // the Authoritation is in the header of the request - Normally has in front Bearer
-  const token = req.headers.authorization
-  // If the token does not exists
-  if (!token) {
-    return res.status(400).json('Not Authorized')
-  }
   const parsedToken = token.replace('Bearer ', '')
   const { id } = verifyJwt(parsedToken)
   const user = await User.findById(id)
   // DELETE the password before sent to the FRONT
   user.password = null
-
   return user
 }
 module.exports = { isAdmin, isAuth }
