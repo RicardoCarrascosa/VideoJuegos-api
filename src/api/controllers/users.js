@@ -29,6 +29,7 @@ const registerUser = async (req, res, next) => {
       return res.status(400).json(['User Already Exists', req.body])
     }
     const newUser = new User(req.body)
+    newUser.rol = 'user'
     const UserSaved = await newUser.save()
     return res.status(201).json(UserSaved)
   } catch (error) {

@@ -4,17 +4,7 @@ const { verifyJwt } = require('../config/jwt.js')
 
 const isAuth = async (req, res, next) => {
   try {
-    // the Authoritation is in the header of the request - Normally has in front Bearer
-    const token = req.headers.authorization
-    // If the token does not exists
-    if (!token) {
-      return res.status(400).json('Not Authorized')
-    }
-    const parsedToken = token.replace('Bearer ', '')
-    const { id } = verifyJwt(parsedToken)
-    const user = await User.findById(id)
-    // DELETE the password before sent to the FRONT
-    user.password = null
+    const user = getUserForAuth(req)
     req.user = user
     next()
   } catch (error) {
@@ -24,20 +14,9 @@ const isAuth = async (req, res, next) => {
 
 const isAdmin = async (req, res, next) => {
   try {
-    // the Authoritation is in the header of the request - Normally has in front Bearer
-    const token = req.headers.authorization
-    // If the token does not exists
-    if (!token) {
-      return res.status(400).json('Not Authorized')
-    }
-
-    const parsedToken = token.replace('Bearer ', '')
-    const { id } = verifyJwt(parsedToken)
-    const user = await User.findById(id)
+    const user = getUserForAuth(req)
     // Check for the role of the user
     if (user.rol === 'admin') {
-      // DELETE the password before sent to the FRONT
-      user.password = null
       req.user = user
       next()
     } else {
@@ -48,4 +27,19 @@ const isAdmin = async (req, res, next) => {
   }
 }
 
+const getUserForAuth = async (req) => {
+  // the Authoritation is in the header of the request - Normally has in front Bearer
+  const token = req.headers.authorization
+  // If the token does not exists
+  if (!token) {
+    return res.status(400).json('Not Authorized')
+  }
+  const parsedToken = token.replace('Bearer ', '')
+  const { id } = verifyJwt(parsedToken)
+  const user = await User.findById(id)
+  // DELETE the password before sent to the FRONT
+  user.password = null
+
+  return user
+}
 module.exports = { isAdmin, isAuth }

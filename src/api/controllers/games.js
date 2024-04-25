@@ -40,6 +40,7 @@ const createGame = async (req, res, next) => {
     const newGame = new Game({
       name: req.body.name,
       img: req.body.img,
+      price: req.body.price,
       category: req.body.category,
       pegi: req.body.pegi
     })

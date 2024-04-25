@@ -14,7 +14,7 @@ const gamesRoutes = require('express').Router()
 
 gamesRoutes.get('/', [isAuth], getGame)
 gamesRoutes.get('/:id', [isAuth], getByIdGame)
-gamesRoutes.get('/category/:category', getByCategoryGame)
+gamesRoutes.get('/category/:category', [isAuth], getByCategoryGame)
 gamesRoutes.post('/', [isAdmin], createGame)
 gamesRoutes.put('/:id', [isAdmin], updateGame)
 gamesRoutes.delete('/:id', [isAdmin], deleteGame)
